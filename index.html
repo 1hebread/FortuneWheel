@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Колесо Фортуны</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="top-bar">
+        <div class="badge-container">
+            <div class="badge-wrapper">
+                <a href="https://discord.com" target="_blank" rel="noopener noreferrer">
+                    <img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white"
+                        alt="Discord">
+                </a>
+                <select id="cheatSelectA" class="cheat-select">
+                    <option value="">Честный выбор</option>
+                </select>
+            </div>
+            <div class="badge-wrapper">
+                <a href="https://github.com" target="_blank" rel="noopener noreferrer">
+                    <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white"
+                        alt="GitHub">
+                </a>
+                <select id="cheatSelectB" class="cheat-select">
+                    <option value="">Честный выбор</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="wheel-section">
+            <div class="wheel-wrapper">
+                <div class="wheel-container">
+                    <canvas id="wheelCanvas" class="wheel-canvas"></canvas>
+                    <div class="wheel-pointer"></div>
+                    <div class="wheel-center"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-panel">
+            <h1 class="panel-title">Колесо Фортуны</h1>
+
+            <div class="form-group">
+                <label class="form-label" for="itemsInput">Пункты колеса (каждый с новой строки)</label>
+                <textarea id="itemsInput" class="textarea-input"
+                    placeholder="Введите пункты...&#10;Приз 1&#10;Приз 2&#10;Приз 3">Приз 1
+Приз 2
+Приз 3
+Приз 4
+Приз 5</textarea>
+                <div class="items-count" id="itemsCount">5 пунктов</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Режим</label>
+                <div class="mode-switch">
+                    <button class="mode-option active" data-mode="normal">Обычный</button>
+                    <button class="mode-option" data-mode="elimination">На выбывание</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="speedSlider">Длительность вращения: <span id="speedValue">5</span>
+                    сек</label>
+                <div class="slider-container">
+                    <input type="range" id="speedSlider" class="range-slider" min="0" max="60" value="5">
+                    <span class="slider-value" id="speedValueDisplay">5с</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <button id="spinButton" class="spin-button">Крутить колесо</button>
+            </div>
+
+            <div class="result-display" id="resultDisplay">
+                <div class="result-text" id="resultText"></div>
+            </div>
+
+            <div class="error-display" id="errorDisplay"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,327 @@
+const sectorColors = [
+    '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
+    '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'
+];
+
+let items = [];
+let currentRotation = 0;
+let mode = 'normal';
+let isSpinning = false;
+let animationId = null;
+
+const canvas = document.getElementById('wheelCanvas');
+const ctx = canvas.getContext('2d');
+const itemsInput = document.getElementById('itemsInput');
+const spinButton = document.getElementById('spinButton');
+const speedSlider = document.getElementById('speedSlider');
+const speedValue = document.getElementById('speedValue');
+const speedValueDisplay = document.getElementById('speedValueDisplay');
+const resultDisplay = document.getElementById('resultDisplay');
+const resultText = document.getElementById('resultText');
+const errorDisplay = document.getElementById('errorDisplay');
+const itemsCount = document.getElementById('itemsCount');
+const cheatSelectA = document.getElementById('cheatSelectA');
+const cheatSelectB = document.getElementById('cheatSelectB');
+const modeButtons = document.querySelectorAll('.mode-option');
+
+function getItems() {
+    const text = itemsInput.value.trim();
+    if (!text) return [];
+    return text.split('\n').map(item => item.trim()).filter(item => item.length > 0);
+}
+
+function updateItemsCount() {
+    items = getItems();
+    const count = items.length;
+    itemsCount.textContent = count === 1 ? '1 пункт' : count >= 2 && count <= 4 ? `${count} пункта` : `${count} пунктов`;
+    updateCheatSelects();
+}
+
+function updateCheatSelects() {
+    const currentA = cheatSelectA.value;
+    const currentB = cheatSelectB.value;
+
+    cheatSelectA.innerHTML = '<option value="">Честный выбор</option>';
+    cheatSelectB.innerHTML = '<option value="">Честный выбор</option>';
+
+    items.forEach((item, index) => {
+        const optionA = document.createElement('option');
+        optionA.value = index;
+        optionA.textContent = item;
+        cheatSelectA.appendChild(optionA);
+
+        const optionB = document.createElement('option');
+        optionB.value = index;
+        optionB.textContent = item;
+        cheatSelectB.appendChild(optionB);
+    });
+
+    if (currentA && items.some((_, i) => String(i) === currentA)) {
+        cheatSelectA.value = currentA;
+    }
+    if (currentB && items.some((_, i) => String(i) === currentB)) {
+        cheatSelectB.value = currentB;
+    }
+
+    cheatSelectB.style.display = mode === 'elimination' ? 'block' : 'none';
+}
+
+function resizeCanvas() {
+    const container = document.querySelector('.wheel-container');
+    const size = Math.min(container.offsetWidth, container.offsetHeight);
+    canvas.width = size * 2;
+    canvas.height = size * 2;
+    canvas.style.width = size + 'px';
+    canvas.style.height = size + 'px';
+}
+
+function drawWheel() {
+    items = getItems();
+    const count = items.length;
+    if (count < 2) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawEmptyWheel();
+        return;
+    }
+
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const radius = Math.min(centerX, centerY) - 20;
+    const sectorAngle = (2 * Math.PI) / count;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (let i = 0; i < count; i++) {
+        const startAngle = i * sectorAngle - Math.PI / 2;
+        const endAngle = startAngle + sectorAngle;
+
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+        ctx.closePath();
+
+        ctx.fillStyle = sectorColors[i % sectorColors.length];
+        ctx.fill();
+
+        ctx.strokeStyle = '#E6E1E5';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+    }
+
+    drawCenterCircle();
+}
+
+function drawEmptyWheel() {
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const radius = Math.min(centerX, centerY) - 20;
+
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    ctx.fillStyle = '#49454F';
+    ctx.fill();
+    ctx.strokeStyle = '#938F99';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+}
+
+function drawCenterCircle() {
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const innerRadius = 50;
+
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, innerRadius, 0, 2 * Math.PI);
+    ctx.fillStyle = '#E6E1E5';
+    ctx.fill();
+    ctx.strokeStyle = '#938F99';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+}
+
+function setWheelRotation(rotation) {
+    const container = document.querySelector('.wheel-container');
+    container.style.transform = `rotate(${rotation}deg)`;
+}
+
+function easeSmoothStartEnd(t) {
+    if (t < 0.5) {
+        return 2 * t * t;
+    } else {
+        return 1 - Math.pow(-2 * t + 2, 2) / 2;
+    }
+}
+
+function spinWheel() {
+    items = getItems();
+    if (items.length < 2) {
+        showError('Добавьте минимум 2 пункта');
+        return;
+    }
+
+    hideError();
+    hideResult();
+    isSpinning = true;
+    spinButton.disabled = true;
+
+    const durationSec = parseInt(speedSlider.value);
+    const duration = durationSec * 1000;
+    const sectorAngle = 360 / items.length;
+    const fullRotations = Math.floor(Math.random() * 4) + 3;
+    let targetIndex;
+
+    if (mode === 'elimination') {
+        const cheatB = cheatSelectB.value;
+        if (cheatB !== '') {
+            targetIndex = parseInt(cheatB);
+        } else {
+            const cheatAContains = [];
+            const cheatAVal = cheatSelectA.value;
+            if (cheatAVal !== '') {
+                cheatAContains.push(parseInt(cheatAVal));
+            }
+            const availableIndices = items
+                .map((_, i) => i)
+                .filter(i => !cheatAContains.includes(i));
+            targetIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+        }
+    } else {
+        const cheatA = cheatSelectA.value;
+        if (cheatA !== '') {
+            targetIndex = parseInt(cheatA);
+        } else {
+            targetIndex = Math.floor(Math.random() * items.length);
+        }
+    }
+
+    const targetAngle = -(targetIndex * sectorAngle + sectorAngle / 2);
+    const totalRotation = fullRotations * 360 + targetAngle;
+    const startRotation = currentRotation;
+    const startTime = performance.now();
+
+    function animate(currentTime) {
+        const elapsed = currentTime - startTime;
+        const t = Math.min(elapsed / duration, 1);
+        
+        const easedT = easeSmoothStartEnd(t);
+        const newRotation = startRotation + totalRotation * easedT;
+        
+        setWheelRotation(newRotation);
+        currentRotation = newRotation;
+        
+        if (t < 1) {
+            animationId = requestAnimationFrame(animate);
+        } else {
+            isSpinning = false;
+            spinButton.disabled = false;
+            finishSpin(targetIndex);
+        }
+    }
+
+    if (duration === 0) {
+        setWheelRotation(startRotation + totalRotation);
+        currentRotation = startRotation + totalRotation;
+        isSpinning = false;
+        spinButton.disabled = false;
+        finishSpin(targetIndex);
+    } else {
+        animationId = requestAnimationFrame(animate);
+    }
+}
+
+function finishSpin(targetIndex) {
+    items = getItems();
+    const winner = items[targetIndex];
+    showResult(winner);
+
+    if (mode === 'elimination') {
+        const newItems = items.filter((_, i) => i !== targetIndex);
+        itemsInput.value = newItems.join('\n');
+        updateItemsCount();
+        drawWheel();
+    }
+    
+    if (cheatSelectB.value !== '') {
+        cheatSelectB.value = '';
+    }
+}
+
+function showResult(text) {
+    resultText.textContent = `Выпало: ${text}`;
+    resultDisplay.classList.add('show');
+}
+
+function hideResult() {
+    resultDisplay.classList.remove('show');
+}
+
+function showError(text) {
+    errorDisplay.textContent = text;
+    errorDisplay.classList.add('show');
+}
+
+function hideError() {
+    errorDisplay.classList.remove('show');
+}
+
+function addRipple(event) {
+    const button = event.currentTarget;
+    const ripple = document.createElement('span');
+    ripple.classList.add('ripple');
+
+    const rect = button.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    ripple.style.width = ripple.style.height = size + 'px';
+    ripple.style.left = event.clientX - rect.left - size / 2 + 'px';
+    ripple.style.top = event.clientY - rect.top - size / 2 + 'px';
+
+    button.appendChild(ripple);
+
+    ripple.addEventListener('animationend', () => {
+        ripple.remove();
+    });
+}
+
+function handleSpeedChange() {
+    const value = speedSlider.value;
+    speedValue.textContent = value;
+    speedValueDisplay.textContent = value + 'с';
+}
+
+function handleModeChange(modeName) {
+    mode = modeName;
+    modeButtons.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === modeName);
+    });
+    updateCheatSelects();
+}
+
+itemsInput.addEventListener('input', () => {
+    updateItemsCount();
+    drawWheel();
+    hideError();
+});
+
+spinButton.addEventListener('click', (e) => {
+    addRipple(e);
+    spinWheel();
+});
+
+speedSlider.addEventListener('input', handleSpeedChange);
+
+modeButtons.forEach(btn => {
+    btn.addEventListener('click', () => handleModeChange(btn.dataset.mode));
+});
+
+cheatSelectA.addEventListener('change', updateCheatSelects);
+cheatSelectB.addEventListener('change', updateCheatSelects);
+
+window.addEventListener('resize', () => {
+    resizeCanvas();
+    drawWheel();
+});
+
+resizeCanvas();
+updateItemsCount();
+drawWheel();
+handleSpeedChange();
