@@ -103,9 +103,35 @@ function drawWheel() {
         ctx.fillStyle = sectorColors[i % sectorColors.length];
         ctx.fill();
 
-        ctx.strokeStyle = '#E6E1E5';
-        ctx.lineWidth = 3;
+        ctx.strokeStyle = '#49454F';
+        ctx.lineWidth = 2;
         ctx.stroke();
+
+        const midAngle = startAngle + sectorAngle / 2;
+        const textRadius = radius * 0.65;
+        const textX = centerX + Math.cos(midAngle) * textRadius;
+        const textY = centerY + Math.sin(midAngle) * textRadius;
+        
+        ctx.save();
+        ctx.translate(textX, textY);
+        ctx.rotate(midAngle + Math.PI / 2);
+        
+        const text = items[i];
+        const maxTextWidth = radius * 0.45;
+        let fontSize = Math.min(radius * 0.12);
+        
+        ctx.font = `500 ${fontSize}px Roboto, sans-serif`;
+        while (ctx.measureText(text).width > maxTextWidth && fontSize > 8) {
+            fontSize -= 0.5;
+            ctx.font = `500 ${fontSize}px Roboto, sans-serif`;
+        }
+        
+        ctx.fillStyle = '#1C1B1F';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(text, 0, 0);
+        
+        ctx.restore();
     }
 
     drawCenterCircle();
@@ -132,7 +158,7 @@ function drawCenterCircle() {
 
     ctx.beginPath();
     ctx.arc(centerX, centerY, innerRadius, 0, 2 * Math.PI);
-    ctx.fillStyle = '#E6E1E5';
+    ctx.fillStyle = '#1C1B1F';
     ctx.fill();
     ctx.strokeStyle = '#938F99';
     ctx.lineWidth = 2;
