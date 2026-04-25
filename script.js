@@ -16,13 +16,12 @@ const spinButton = document.getElementById('spinButton');
 const speedSlider = document.getElementById('speedSlider');
 const speedValue = document.getElementById('speedValue');
 const speedValueDisplay = document.getElementById('speedValueDisplay');
-const resultDisplay = document.getElementById('resultDisplay');
-const resultText = document.getElementById('resultText');
 const errorDisplay = document.getElementById('errorDisplay');
 const itemsCount = document.getElementById('itemsCount');
 const cheatSelectA = document.getElementById('cheatSelectA');
 const cheatSelectB = document.getElementById('cheatSelectB');
 const modeButtons = document.querySelectorAll('.mode-option');
+const resultPopup = document.getElementById('resultPopup');
 
 function getItems() {
     const text = itemsInput.value.trim();
@@ -285,12 +284,19 @@ function finishSpin(targetIndex) {
 }
 
 function showResult(text) {
-    resultText.textContent = `Выпало: ${text}`;
-    resultDisplay.classList.add('show');
+    resultPopup.textContent = text;
+    resultPopup.style.display = 'block';
+    resultPopup.classList.remove('hide');
+    resultPopup.classList.add('show');
 }
 
 function hideResult() {
-    resultDisplay.classList.remove('show');
+    resultPopup.classList.remove('show');
+    resultPopup.classList.add('hide');
+    setTimeout(() => {
+        resultPopup.classList.remove('hide');
+        resultPopup.style.display = 'none';
+    }, 300);
 }
 
 function showError(text) {
