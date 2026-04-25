@@ -337,6 +337,7 @@ function handleModeChange(modeName) {
     modeButtons.forEach(btn => {
         btn.classList.toggle('active', btn.dataset.mode === modeName);
     });
+    document.querySelector('.mode-switch').dataset.active = modeName;
     updateCheatSelects();
 }
 
