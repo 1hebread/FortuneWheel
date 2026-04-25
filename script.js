@@ -340,6 +340,13 @@ itemsInput.addEventListener('input', () => {
     hideError();
 });
 
+const wheelContainer = document.querySelector('.wheel-container');
+wheelContainer.addEventListener('click', (e) => {
+    if (!isSpinning) {
+        spinWheel();
+    }
+});
+
 spinButton.addEventListener('click', (e) => {
     addRipple(e);
     spinWheel();
