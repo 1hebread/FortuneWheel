@@ -220,8 +220,20 @@ function spinWheel() {
         }
     }
 
-    const targetAngle = -(targetIndex * sectorAngle + sectorAngle / 2);
-    const totalRotation = fullRotations * 360 + targetAngle;
+    const randomSectorOffset = sectorAngle * (0.1 + Math.random() * 0.8);
+    
+
+    const itemAngle = (targetIndex * sectorAngle) + randomSectorOffset;
+    
+    const currentMod = currentRotation % 360;
+    const targetMod = 360 - itemAngle;
+    
+    let rotationDiff = targetMod - currentMod;
+    if (rotationDiff <= 0) {
+        rotationDiff += 360;
+    }
+    
+    const totalRotation = (fullRotations * 360) + rotationDiff;
     const startRotation = currentRotation;
     const startTime = performance.now();
 
