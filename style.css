@@ -316,8 +316,11 @@ body {
     height: calc(100% - 8px);
     background: var(--md-sys-primary-container);
     border-radius: 16px;
-    transition: transform 0.3s ease;
     z-index: 0;
+}
+
+.mode-switch.loaded .mode-slider {
+    transition: transform 0.3s ease;
 }
 
 .mode-switch[data-active="normal"] .mode-slider {

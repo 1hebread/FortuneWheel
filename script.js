@@ -350,6 +350,7 @@ function handleModeChange(modeName) {
     });
     document.querySelector('.mode-switch').dataset.active = modeName;
     updateCheatSelects();
+    localStorage.setItem('fortuneWheelMode', modeName);
 }
 
 itemsInput.addEventListener('input', () => {
@@ -388,3 +389,17 @@ resizeCanvas();
 updateItemsCount();
 drawWheel();
 handleSpeedChange();
+
+const savedMode = localStorage.getItem('fortuneWheelMode') || 'normal';
+const modeSwitch = document.querySelector('.mode-switch');
+
+modeSwitch.dataset.active = savedMode;
+modeButtons.forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mode === savedMode);
+});
+mode = savedMode;
+updateCheatSelects();
+
+requestAnimationFrame(() => {
+    modeSwitch.classList.add('loaded');
+});
