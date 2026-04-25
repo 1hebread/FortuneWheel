@@ -287,6 +287,7 @@ function finishSpin(targetIndex) {
         itemsInput.value = newItems.join('\n');
         updateItemsCount();
         drawWheel();
+        localStorage.setItem('fortuneWheelItems', itemsInput.value);
     }
     
     if (cheatSelectB.value !== '') {
@@ -357,6 +358,7 @@ itemsInput.addEventListener('input', () => {
     updateItemsCount();
     drawWheel();
     hideError();
+    localStorage.setItem('fortuneWheelItems', itemsInput.value); 
 });
 
 const wheelContainer = document.querySelector('.wheel-container');
@@ -385,10 +387,7 @@ window.addEventListener('resize', () => {
     drawWheel();
 });
 
-resizeCanvas();
-updateItemsCount();
-drawWheel();
-handleSpeedChange();
+// Mode
 
 const savedMode = localStorage.getItem('fortuneWheelMode') || 'normal';
 const modeSwitch = document.querySelector('.mode-switch');
@@ -403,3 +402,15 @@ updateCheatSelects();
 requestAnimationFrame(() => {
     modeSwitch.classList.add('loaded');
 });
+
+// Items
+
+const savedItems = localStorage.getItem('fortuneWheelItems');
+if (savedItems !== null) {
+    itemsInput.value = savedItems;
+}
+
+resizeCanvas();
+updateItemsCount();
+drawWheel();
+handleSpeedChange();
