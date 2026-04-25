@@ -188,6 +188,10 @@ function spinWheel() {
     hideResult();
     isSpinning = true;
     spinButton.disabled = true;
+    itemsInput.disabled = true;
+    speedSlider.disabled = true;
+    modeButtons.forEach(btn => btn.disabled = true);
+    canvas.style.cursor = 'default';
 
     const durationSec = parseInt(speedSlider.value);
     const duration = durationSec * 1000;
@@ -251,6 +255,10 @@ function spinWheel() {
         } else {
             isSpinning = false;
             spinButton.disabled = false;
+            itemsInput.disabled = false;
+            speedSlider.disabled = false;
+            modeButtons.forEach(btn => btn.disabled = false);
+            canvas.style.cursor = 'pointer';
             finishSpin(targetIndex);
         }
     }
@@ -260,6 +268,9 @@ function spinWheel() {
         currentRotation = startRotation + totalRotation;
         isSpinning = false;
         spinButton.disabled = false;
+        itemsInput.disabled = false;
+        speedSlider.disabled = false;
+        modeButtons.forEach(btn => btn.disabled = false);
         finishSpin(targetIndex);
     } else {
         animationId = requestAnimationFrame(animate);
