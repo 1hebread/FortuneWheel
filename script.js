@@ -18,8 +18,7 @@ const translations = {
         modeLabel: 'Mode',
         modeNormal: 'Normal',
         modeElimination: 'Elimination',
-        durationLabel: 'Rotation duration:',
-        durationSec: 'sec',
+        durationLabel: 'Rotation duration',
         spinButton: 'Spin wheel',
         minItemsError: 'Add at least 2 items',
         defaultItems: 'Prize 1\nPrize 2\nPrize 3\nPrize 4\nPrize 5'
@@ -38,8 +37,7 @@ const translations = {
         modeLabel: 'Режим',
         modeNormal: 'Обычный',
         modeElimination: 'На выбывание',
-        durationLabel: 'Длительность вращения:',
-        durationSec: 'сек',
+        durationLabel: 'Длительность вращения',
         spinButton: 'Крутить колесо',
         minItemsError: 'Добавьте минимум 2 пункта',
         defaultItems: 'Приз 1\nПриз 2\nПриз 3\nПриз 4\nПриз 5'
@@ -82,7 +80,6 @@ const ctx = canvas.getContext('2d');
 const itemsInput = document.getElementById('itemsInput');
 const spinButton = document.getElementById('spinButton');
 const speedSlider = document.getElementById('speedSlider');
-const speedValue = document.getElementById('speedValue');
 const speedValueDisplay = document.getElementById('speedValueDisplay');
 const errorDisplay = document.getElementById('errorDisplay');
 const itemsCount = document.getElementById('itemsCount');
@@ -428,7 +425,6 @@ function addRipple(event) {
 
 function handleSpeedChange() {
     const value = speedSlider.value;
-    speedValue.textContent = value;
     speedValueDisplay.textContent = value + (currentLanguage === 'ru' ? 'с' : 's');
 }
 
@@ -500,8 +496,7 @@ function updateUILanguage() {
     
     const speedLabel = document.querySelector('label[for="speedSlider"]');
     if (speedLabel) {
-        const currentSpeedValue = speedValue.textContent;
-        speedLabel.innerHTML = t('durationLabel') + ' <span id="speedValue">' + currentSpeedValue + '</span> ' + t('durationSec');
+        speedLabel.innerHTML = t('durationLabel');
     }
     
     spinButton.textContent = t('spinButton');
