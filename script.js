@@ -271,6 +271,7 @@ function spinWheel() {
         itemsInput.disabled = false;
         speedSlider.disabled = false;
         modeButtons.forEach(btn => btn.disabled = false);
+        canvas.style.cursor = 'pointer';
         finishSpin(targetIndex);
     } else {
         animationId = requestAnimationFrame(animate);
@@ -295,7 +296,13 @@ function finishSpin(targetIndex) {
     }
 }
 
+let hideResultTimeout = null;
+
 function showResult(text) {
+    if (hideResultTimeout) {
+        clearTimeout(hideResultTimeout);
+        hideResultTimeout = null;
+    }
     resultPopup.textContent = text;
     resultPopup.style.display = 'block';
     resultPopup.classList.remove('hide');
@@ -304,11 +311,16 @@ function showResult(text) {
 
 function hideResult() {
     resultPopup.classList.remove('show');
-    resultPopup.classList.add('hide');
-    setTimeout(() => {
-        resultPopup.classList.remove('hide');
+    if (resultPopup.style.display === 'block') {
+        resultPopup.classList.add('hide');
+        hideResultTimeout = setTimeout(() => {
+            resultPopup.classList.remove('hide');
+            resultPopup.style.display = 'none';
+            hideResultTimeout = null;
+        }, 300);
+    } else {
         resultPopup.style.display = 'none';
-    }, 300);
+    }
 }
 
 function showError(text) {
