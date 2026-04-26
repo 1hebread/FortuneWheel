@@ -38,6 +38,13 @@ body {
     border-bottom: 1px solid var(--md-sys-surface-variant);
 }
 
+.top-bar-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+}
+
 .badge-container {
     display: flex;
     align-items: center;

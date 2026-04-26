@@ -364,7 +364,7 @@ function finishSpin(targetIndex) {
         itemsInput.value = newItems.join('\n');
         updateItemsCount();
         drawWheel();
-        localStorage.setItem('fortuneWheelItems', itemsInput.value);
+        localStorage.setItem('items', itemsInput.value);
     }
     
     if (cheatSelectB.value !== '') {
@@ -439,14 +439,14 @@ function handleModeChange(modeName) {
     });
     document.querySelector('.mode-switch').dataset.active = modeName;
     updateCheatSelects();
-    localStorage.setItem('fortuneWheelMode', modeName);
+    localStorage.setItem('mode', modeName);
 }
 
 itemsInput.addEventListener('input', () => {
     updateItemsCount();
     drawWheel();
     hideError();
-    localStorage.setItem('fortuneWheelItems', itemsInput.value); 
+    localStorage.setItem('items', itemsInput.value); 
 });
 
 const wheelContainer = document.querySelector('.wheel-container');
@@ -489,9 +489,9 @@ function updateUILanguage() {
     
     updateItemsCount();
     
-    const modeLabel = document.querySelector('label.form-label:nth-of-type(2)');
-    if (modeLabel) {
-        modeLabel.textContent = t('modeLabel');
+    const modeLabelText = document.getElementById('modeLabelText');
+    if (modeLabelText) {
+        modeLabelText.textContent = t('modeLabel');
     }
     
     const modeOptions = document.querySelectorAll('.mode-option');
@@ -514,7 +514,7 @@ function setLanguage(lang) {
     if (lang !== 'en' && lang !== 'ru') return;
     
     currentLanguage = lang;
-    localStorage.setItem('fortuneWheelLanguage', lang);
+    localStorage.setItem('language', lang);
     
     const selector = document.getElementById('languageSelector');
     if (selector) {
@@ -525,12 +525,12 @@ function setLanguage(lang) {
 }
 
 // Language
-const savedLanguage = localStorage.getItem('fortuneWheelLanguage') || 'en';
+const savedLanguage = localStorage.getItem('language') || 'en';
 currentLanguage = savedLanguage;
 
 // Mode
 
-const savedMode = localStorage.getItem('fortuneWheelMode') || 'normal';
+const savedMode = localStorage.getItem('mode') || 'normal';
 const modeSwitch = document.querySelector('.mode-switch');
 
 modeSwitch.dataset.active = savedMode;
@@ -546,7 +546,7 @@ requestAnimationFrame(() => {
 
 // Items
 
-const savedItems = localStorage.getItem('fortuneWheelItems');
+const savedItems = localStorage.getItem('items');
 if (savedItems !== null) {
     itemsInput.value = savedItems;
 }
@@ -556,10 +556,13 @@ updateItemsCount();
 drawWheel();
 
 // Initialize language and UI
+const languageSelector = document.getElementById('languageSelector');
+if (languageSelector) {
+    languageSelector.value = currentLanguage;
+}
 updateUILanguage();
 
 // Language selector event
-const languageSelector = document.getElementById('languageSelector');
 if (languageSelector) {
     languageSelector.addEventListener('change', (e) => {
         setLanguage(e.target.value);
