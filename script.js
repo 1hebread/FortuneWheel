@@ -501,6 +501,13 @@ function updateUILanguage() {
     
     spinButton.textContent = t('spinButton');
     
+    if (itemsInput.value === translations.en.defaultItems || 
+        itemsInput.value === translations.ru.defaultItems) {
+        itemsInput.value = t('defaultItems');
+
+        drawWheel();
+    }
+
     updateCheatSelects();
     handleSpeedChange();
 }
@@ -544,6 +551,8 @@ requestAnimationFrame(() => {
 const savedItems = localStorage.getItem('items');
 if (savedItems !== null) {
     itemsInput.value = savedItems;
+} else {
+    itemsInput.value = t('defaultItems');
 }
 
 resizeCanvas();
