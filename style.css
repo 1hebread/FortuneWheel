@@ -32,7 +32,7 @@ body {
     padding: 12px 24px;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     gap: 24px;
     flex-wrap: wrap;
     border-bottom: 1px solid var(--md-sys-surface-variant);
@@ -42,6 +42,39 @@ body {
     display: flex;
     align-items: center;
     gap: 16px;
+}
+
+.language-selector-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.language-selector {
+    padding: 8px 12px;
+    border: 1px solid var(--md-sys-outline);
+    border-radius: 8px;
+    background: var(--md-sys-surface);
+    color: var(--md-sys-on-surface);
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.language-selector:hover {
+    border-color: var(--md-sys-primary);
+}
+
+.language-selector:focus {
+    outline: none;
+    border-color: var(--md-sys-primary);
+    box-shadow: 0 0 0 3px rgba(208, 188, 255, 0.1);
+}
+
+.language-selector option {
+    background: var(--md-sys-surface);
+    color: var(--md-sys-on-surface);
 }
 
 .badge-wrapper {

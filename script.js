@@ -3,6 +3,74 @@ const sectorColors = [
     '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'
 ];
 
+const translations = {
+    en: {
+        pageTitle: 'Fortune Wheel',
+        panelTitle: 'Fortune Wheel',
+        itemsLabel: 'Wheel items (one per line)',
+        itemsPlaceholder: 'Enter items...\\nPrize 1\\nPrize 2\\nPrize 3',
+        itemCount: {
+            one: '1 item',
+            few: (n) => `${n} items`,
+            other: (n) => `${n} items`
+        },
+        fairChoice: 'Fair choice',
+        modeLabel: 'Mode',
+        modeNormal: 'Normal',
+        modeElimination: 'Elimination',
+        durationLabel: 'Rotation duration:',
+        durationSec: 'sec',
+        spinButton: 'Spin wheel',
+        minItemsError: 'Add at least 2 items',
+        defaultItems: 'Prize 1\nPrize 2\nPrize 3\nPrize 4\nPrize 5'
+    },
+    ru: {
+        pageTitle: 'Колесо Фортуны',
+        panelTitle: 'Колесо Фортуны',
+        itemsLabel: 'Пункты колеса (каждый с новой строки)',
+        itemsPlaceholder: 'Введите пункты...\\nПриз 1\\nПриз 2\\nПриз 3',
+        itemCount: {
+            one: '1 пункт',
+            few: (n) => `${n} пункта`,
+            other: (n) => `${n} пунктов`
+        },
+        fairChoice: 'Честный выбор',
+        modeLabel: 'Режим',
+        modeNormal: 'Обычный',
+        modeElimination: 'На выбывание',
+        durationLabel: 'Длительность вращения:',
+        durationSec: 'сек',
+        spinButton: 'Крутить колесо',
+        minItemsError: 'Добавьте минимум 2 пункта',
+        defaultItems: 'Приз 1\nПриз 2\nПриз 3\nПриз 4\nПриз 5'
+    }
+};
+
+let currentLanguage = 'en';
+
+function translate(key) {
+    const keys = key.split('.');
+    let value = translations[currentLanguage];
+    
+    for (const k of keys) {
+        if (typeof value === 'object' && value !== null) {
+            value = value[k];
+        } else {
+            return key;
+        }
+    }
+    
+    return typeof value === 'function' ? value : value;
+}
+
+function t(key, ...args) {
+    let value = translate(key);
+    if (typeof value === 'function') {
+        return value(...args);
+    }
+    return value;
+}
+
 let items = [];
 let currentRotation = 0;
 let mode = 'normal';
@@ -32,7 +100,15 @@ function getItems() {
 function updateItemsCount() {
     items = getItems();
     const count = items.length;
-    itemsCount.textContent = count === 1 ? '1 пункт' : count >= 2 && count <= 4 ? `${count} пункта` : `${count} пунктов`;
+    if (count === 0) {
+        itemsCount.textContent = '';
+    } else if (count === 1) {
+        itemsCount.textContent = t('itemCount.one');
+    } else if (currentLanguage === 'ru' && count >= 2 && count <= 4) {
+        itemsCount.textContent = t('itemCount.few', count);
+    } else {
+        itemsCount.textContent = t('itemCount.other', count);
+    }
     updateCheatSelects();
 }
 
@@ -40,8 +116,8 @@ function updateCheatSelects() {
     const currentA = cheatSelectA.value;
     const currentB = cheatSelectB.value;
 
-    cheatSelectA.innerHTML = '<option value="">Честный выбор</option>';
-    cheatSelectB.innerHTML = '<option value="">Честный выбор</option>';
+    cheatSelectA.innerHTML = `<option value="">${t('fairChoice')}</option>`;
+    cheatSelectB.innerHTML = `<option value="">${t('fairChoice')}</option>`;
 
     items.forEach((item, index) => {
         const optionA = document.createElement('option');
@@ -180,7 +256,7 @@ function easeSmoothStartEnd(t) {
 function spinWheel() {
     items = getItems();
     if (items.length < 2) {
-        showError('Добавьте минимум 2 пункта');
+        showError(t('minItemsError'));
         return;
     }
 
@@ -353,7 +429,7 @@ function addRipple(event) {
 function handleSpeedChange() {
     const value = speedSlider.value;
     speedValue.textContent = value;
-    speedValueDisplay.textContent = value + 'с';
+    speedValueDisplay.textContent = value + (currentLanguage === 'ru' ? 'с' : 's');
 }
 
 function handleModeChange(modeName) {
@@ -399,6 +475,59 @@ window.addEventListener('resize', () => {
     drawWheel();
 });
 
+function updateUILanguage() {
+    document.documentElement.lang = currentLanguage;
+    document.title = t('pageTitle');
+    
+    const panelTitle = document.querySelector('.panel-title');
+    panelTitle.textContent = t('panelTitle');
+    
+    const itemsLabel = document.querySelector('label[for="itemsInput"]');
+    itemsLabel.textContent = t('itemsLabel');
+    
+    itemsInput.placeholder = t('itemsPlaceholder');
+    
+    updateItemsCount();
+    
+    const modeLabel = document.querySelector('label.form-label:nth-of-type(2)');
+    if (modeLabel) {
+        modeLabel.textContent = t('modeLabel');
+    }
+    
+    const modeOptions = document.querySelectorAll('.mode-option');
+    if (modeOptions[0]) modeOptions[0].textContent = t('modeNormal');
+    if (modeOptions[1]) modeOptions[1].textContent = t('modeElimination');
+    
+    const speedLabel = document.querySelector('label[for="speedSlider"]');
+    if (speedLabel) {
+        const currentSpeedValue = speedValue.textContent;
+        speedLabel.innerHTML = t('durationLabel') + ' <span id="speedValue">' + currentSpeedValue + '</span> ' + t('durationSec');
+    }
+    
+    spinButton.textContent = t('spinButton');
+    
+    updateCheatSelects();
+    handleSpeedChange();
+}
+
+function setLanguage(lang) {
+    if (lang !== 'en' && lang !== 'ru') return;
+    
+    currentLanguage = lang;
+    localStorage.setItem('fortuneWheelLanguage', lang);
+    
+    const selector = document.getElementById('languageSelector');
+    if (selector) {
+        selector.value = lang;
+    }
+    
+    updateUILanguage();
+}
+
+// Language
+const savedLanguage = localStorage.getItem('fortuneWheelLanguage') || 'en';
+currentLanguage = savedLanguage;
+
 // Mode
 
 const savedMode = localStorage.getItem('fortuneWheelMode') || 'normal';
@@ -425,4 +554,14 @@ if (savedItems !== null) {
 resizeCanvas();
 updateItemsCount();
 drawWheel();
-handleSpeedChange();
+
+// Initialize language and UI
+updateUILanguage();
+
+// Language selector event
+const languageSelector = document.getElementById('languageSelector');
+if (languageSelector) {
+    languageSelector.addEventListener('change', (e) => {
+        setLanguage(e.target.value);
+    });
+}
